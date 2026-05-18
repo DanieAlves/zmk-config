@@ -3,9 +3,14 @@
  *
  * SPDX-License-Identifier: MIT
  *
- * 5x3 Corne layout — outer columns removed, thumb cluster preserved.
- * Lost keys (TAB/ESC/BSPC/SQT) restored via combos.
- * Modifiers (SHIFT/CTRL/ALT/GUI) on home row via hold-tap (Miryoku-style).
+ * 5x3 Corne — outer columns removed, full thumb cluster (3+3) preserved on every layer.
+ * Home-row mods (Miryoku-style) recover SHIFT/CTRL/ALT/GUI.
+ * Lost outer keys (TAB/ESC/BSPC/DEL/SQT/ENT) recovered via combos.
+ *
+ * Layer 0: base alphas + HRM
+ * Layer 1 (lower):  numbers + nav (arrows, home/end, page up/down)
+ * Layer 2 (raise):  symbols
+ * Layer 3:          F-keys + BT + mouse + media (held both thumb layer keys)
  */
 
 #include <behaviors.dtsi>
@@ -29,65 +34,26 @@
     combos {
         compatible = "zmk,combos";
 
-        // Thumb LWR + RSE → layer 3
+        // Hold both layer thumbs → layer 3
         layer3 {
             bindings = <&mo 3>;
             key-positions = <32 33>;
         };
 
-        // C + B = copy
-        copy {
-            bindings = <&kp LC(C)>;
-            key-positions = <22 24>;
-        };
+        // Editing combos (Windows shortcuts)
+        copy   { bindings = <&kp LC(C)>; key-positions = <22 24>; };  // C + B
+        paste  { bindings = <&kp LC(V)>; key-positions = <23 24>; };  // V + B
+        cut    { bindings = <&kp LC(X)>; key-positions = <21 24>; };  // X + B
+        undo   { bindings = <&kp LC(Z)>; key-positions = <20 24>; };  // Z + B
 
-        // V + B = paste
-        paste {
-            bindings = <&kp LC(V)>;
-            key-positions = <23 24>;
-        };
-
-        // Q + W = TAB
-        tab_combo {
-            bindings = <&kp TAB>;
-            key-positions = <0 1>;
-            timeout-ms = <40>;
-        };
-
-        // W + E = ESC
-        esc_combo {
-            bindings = <&kp ESC>;
-            key-positions = <1 2>;
-            timeout-ms = <40>;
-        };
-
-        // O + P = BSPC
-        bspc_combo {
-            bindings = <&kp BSPC>;
-            key-positions = <8 9>;
-            timeout-ms = <40>;
-        };
-
-        // I + O = DEL
-        del_combo {
-            bindings = <&kp DEL>;
-            key-positions = <7 8>;
-            timeout-ms = <40>;
-        };
-
-        // L + ; = '
-        sqt_combo {
-            bindings = <&kp SQT>;
-            key-positions = <18 19>;
-            timeout-ms = <40>;
-        };
-
-        // J + K = ENTER (extra, optional)
-        ent_combo {
-            bindings = <&kp ENTER>;
-            key-positions = <16 17>;
-            timeout-ms = <40>;
-        };
+        // Lost outer-column keys
+        tab_combo  { bindings = <&kp TAB>;  key-positions = <0 1>;  timeout-ms = <40>; };  // Q + W
+        esc_combo  { bindings = <&kp ESC>;  key-positions = <1 2>;  timeout-ms = <40>; };  // W + E
+        del_combo  { bindings = <&kp DEL>;  key-positions = <7 8>;  timeout-ms = <40>; };  // I + O
+        bspc_combo { bindings = <&kp BSPC>; key-positions = <8 9>;  timeout-ms = <40>; };  // O + P
+        sqt_combo  { bindings = <&kp SQT>;  key-positions = <18 19>; timeout-ms = <40>; }; // L + ;
+        ent_combo  { bindings = <&kp ENTER>; key-positions = <16 17>; timeout-ms = <40>; };// J + K
+        caps_combo { bindings = <&caps_word>; key-positions = <11 18>; timeout-ms = <50>; };// S + L (Caps Word)
     };
 
     keymap {
@@ -96,32 +62,33 @@
         default_layer {
             // ---------------------------------------------------------------------------
             // |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U  |  I  |  O  |  P  |
-            // |  A  |  S  |  D  |  F  |  G  |   |  H  |  J  |  K  |  L  |  ;  |   (home-row mods)
+            // | A/G | S/A | D/C | F/S |  G  |   |  H  | J/S | K/C | L/A | ;/G |
             // |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M  |  ,  |  .  |  /  |
-            //               | GUI | SPC | LWR |   | RSE | ENT | ALT |
+            //                | GUI | SPC | LWR |   | RSE | ENT | ALT |
             //
-            // Combos: Q+W=TAB  W+E=ESC  I+O=DEL  O+P=BSPC  L+;='  J+K=ENT  C+B=copy  V+B=paste
+            // Combos: Q+W=TAB  W+E=ESC  I+O=DEL  O+P=BSPC  L+;='  J+K=ENT  S+L=CAPS WORD
+            //         Z+B=undo  X+B=cut  C+B=copy  V+B=paste
 
             bindings = <
-&kp Q          &kp W         &kp E          &kp R          &kp T              &kp Y      &kp U          &kp I          &kp O          &kp P
-&hm LGUI A     &hm LALT S    &hm LCTRL D    &hm LSHFT F    &kp G              &kp H      &hm RSHFT J    &hm RCTRL K    &hm LALT L     &hm RGUI SEMI
-&kp Z          &kp X         &kp C          &kp V          &kp B              &kp N      &kp M          &kp COMMA      &kp DOT        &kp FSLH
-                                       &kp LGUI       &kp SPACE      &mo 1      &mo 2      &kp ENTER      &kp LALT
+&kp Q        &kp W       &kp E         &kp R         &kp T          &kp Y    &kp U         &kp I         &kp O        &kp P
+&hm LGUI A   &hm LALT S  &hm LCTRL D   &hm LSHFT F   &kp G          &kp H    &hm RSHFT J   &hm RCTRL K   &hm LALT L   &hm RGUI SEMI
+&kp Z        &kp X       &kp C         &kp V         &kp B          &kp N    &kp M         &kp COMMA     &kp DOT      &kp FSLH
+                                  &kp LGUI      &kp SPACE     &mo 1          &mo 2    &kp ENTER     &kp LALT
             >;
         };
 
         lower_layer {
             // ---------------------------------------------------------------------------
             // |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  |
-            // |     |     |     |     |     |   | LFT | DWN |  UP | RGT |  '  |
+            // | GUI | ALT | CTL | SHF |     |   | LFT | DWN |  UP | RGT |  '  |
             // |     |     |     |     |     |   | HOM |PGDN |PGUP | END |  \  |
-            //               | GUI |     | SPC |   | RET |     | ALT |
+            //                | GUI | SPC | ___ |   | RSE | ENT | ALT |
 
             bindings = <
-&kp N1     &kp N2     &kp N3     &kp N4     &kp N5         &kp N6     &kp N7     &kp N8     &kp N9      &kp N0
-&trans     &trans     &trans     &trans     &trans         &kp LEFT   &kp DOWN   &kp UP     &kp RIGHT   &kp SQT
-&trans     &trans     &trans     &trans     &trans         &kp HOME   &kp PG_DN  &kp PG_UP  &kp END     &kp BSLH
-                                       &kp LGUI       &trans         &kp SPACE   &kp RET    &trans      &kp RALT
+&kp N1        &kp N2        &kp N3        &kp N4        &kp N5            &kp N6      &kp N7        &kp N8        &kp N9        &kp N0
+&sk LGUI      &sk LALT      &sk LCTRL     &sk LSHFT     &trans            &kp LEFT    &kp DOWN      &kp UP        &kp RIGHT     &kp SQT
+&trans        &trans        &trans        &trans        &trans            &kp HOME    &kp PG_DN     &kp PG_UP     &kp END       &kp BSLH
+                                  &kp LGUI      &kp SPACE     &trans            &mo 3       &kp ENTER     &kp LALT
             >;
         };
 
@@ -130,13 +97,13 @@
             // |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  |
             // |     |     |     |     |     |   |  -  |  =  |  [  |  ]  |  `  |
             // |     |     |     |     |     |   |  _  |  +  |  {  |  }  |  |  |
-            //               | GUI |     | SPC |   | RET |     | ALT |
+            //                | GUI | SPC | LWR |   | ___ | ENT | ALT |
 
             bindings = <
-&kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT      &kp CARET  &kp AMPS   &kp ASTRK  &kp LPAR   &kp RPAR
-&trans     &trans     &trans     &trans     &trans         &kp MINUS  &kp EQUAL  &kp LBKT   &kp RBKT   &kp GRAVE
-&trans     &trans     &trans     &trans     &trans         &kp UNDER  &kp PLUS   &kp LBRC   &kp RBRC   &kp PIPE
-                                       &kp LGUI       &trans         &kp SPACE   &kp RET    &trans      &kp RALT
+&kp EXCL      &kp AT        &kp HASH      &kp DLLR      &kp PRCNT         &kp CARET   &kp AMPS      &kp ASTRK     &kp LPAR      &kp RPAR
+&sk LGUI      &sk LALT      &sk LCTRL     &sk LSHFT     &trans            &kp MINUS   &kp EQUAL     &kp LBKT      &kp RBKT      &kp GRAVE
+&trans        &trans        &trans        &trans        &trans            &kp UNDER   &kp PLUS      &kp LBRC      &kp RBRC      &kp PIPE
+                                  &kp LGUI      &kp SPACE     &mo 3             &trans      &kp ENTER     &kp LALT
             >;
         };
 
@@ -144,14 +111,14 @@
             // ---------------------------------------------------------------------------
             // | F1  | F2  | F3  | F4  | F5  |   | F6  | F7  | F8  | F9  | F10 |
             // |BCLR | BT1 | BT2 | BT3 | BT4 |   | MLF | MDN | MUP | MRT | F11 |
-            // |     |     |     |     |     |   | LCK | RCK | MCK |VOL- | F12 |
-            //                |     |     |     |   |     |     |     |
+            // |     |     |     |     |BTNX |   | LCK | RCK | MCK |MUTE | F12 |
+            //                | V-  |MUTE | V+  |   | PRV |PLAY | NXT |
 
             bindings = <
-&kp F1      &kp F2        &kp F3        &kp F4        &kp F5           &kp F6           &kp F7          &kp F8          &kp F9           &kp F10
-&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3     &mmv MOVE_LEFT   &mmv MOVE_DOWN  &mmv MOVE_UP    &mmv MOVE_RIGHT  &kp F11
-&trans      &trans        &trans        &trans        &trans           &mkp LCLK        &mkp RCLK       &mkp MCLK       &kp C_VOL_DN     &kp F12
-                                              &trans        &trans        &trans         &trans          &trans          &trans
+&kp F1        &kp F2          &kp F3          &kp F4          &kp F5            &kp F6           &kp F7          &kp F8           &kp F9           &kp F10
+&bt BT_CLR    &bt BT_SEL 0    &bt BT_SEL 1    &bt BT_SEL 2    &bt BT_SEL 3      &mmv MOVE_LEFT   &mmv MOVE_DOWN  &mmv MOVE_UP     &mmv MOVE_RIGHT  &kp F11
+&trans        &trans          &trans          &trans          &bt BT_NXT        &mkp LCLK        &mkp RCLK       &mkp MCLK        &kp K_MUTE       &kp F12
+                                              &kp C_VOL_DN    &kp K_MUTE        &kp C_VOL_UP     &kp C_PREV      &kp C_PP         &kp C_NEXT
             >;
         };
     };

@@ -77,6 +77,26 @@
             bindings = <&mo>, <&kp>;
         };
 
+        // Backspace that becomes Delete while shift is active. Shift is masked, so
+        // the host gets a plain Delete (Shift+Delete would be "cut" on Windows).
+        bspc_del: backspace_delete {
+            compatible = "zmk,behavior-mod-morph";
+            #binding-cells = <0>;
+            bindings = <&kp BSPC>, <&kp DEL>;
+            mods = <(MOD_LSFT|MOD_RSFT)>;
+        };
+
+        // BSPC/RAISE thumb: same timing as lt_bal, but the tap is bspc_del. The
+        // second parameter is ignored because bspc_del takes none.
+        lt_bspc: layer_tap_backspace {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <175>;
+            bindings = <&mo>, <&bspc_del>;
+        };
+
         // ENTER/ACC: any key pressed while the thumb is down gives the accent, so a
         // sloppy release can never send a stray ENTER in the middle of a word.
         lt_hold: layer_tap_hold_preferred {
@@ -341,7 +361,7 @@
 &none  &kp Q        &kp W        &kp E         &kp R         &kp T        &kp Y    &kp U         &kp I         &kp O        &kp P  &none
 &none  &hml LGUI A  &hml LALT S  &hml LCTRL D  &hml LSHFT F  &kp G        &kp H    &hmr RSHFT J  &hmr RCTRL K  &hmr LALT L  &hmr RGUI SEMI  &none
 &none  &kp Z        &kp X        &kp C         &kp V         &kp B        &kp N    &kp M         &kp COMMA     &kp DOT      &kp FSLH  &none
-                     &mt_bal LCTRL ESC  &lt_tap 1 SPACE  &lt_bal 2 TAB      &lt_bal 3 BSPC  &lt_hold 5 ENTER  &smart_shft
+                     &mt_bal LCTRL ESC  &lt_tap 1 SPACE  &lt_bal 2 TAB      &lt_bspc 3 0  &lt_hold 5 ENTER  &smart_shft
             >;
         };
 
